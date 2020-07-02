@@ -1,0 +1,202 @@
+Oeuvre(#code:int, titre:string, date_creation:date, hauteur:int, largeur:int, epaisseur:int, type:{peinture,sculpture,photographie}) avec titre, hauteur, largeur NON NULL
+~Contraintes~
+- NOT (epaisseur AND (type=peinture OR type=photographie))
+- epaisseur AND type=sculpture
+~3NF~ 
+    -Tous les attributs sont atomiques (même si on a des types, ils sont complement une relation XOR parmi eux).
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Auteur(#id:int, nom:string, prenom:string, date_naissance:date) avec nom et prénom NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Creer(#auteur_id=>Auteur, #code_oeuvre=>Oeuvre)
+~3NF~
+    -Cette relation est trivialement 3NF.
+
+Prestataire(#raison_sociale:string)
+~3NF~
+    -Cette relation est trivialement 3NF.
+
+Restauration(#code_oeuvre=>Oeuvre, #prestataire=>Prestataire, numero:int, type:string, date_restaurer:date, montant:int) avec numero UNIQUE, NON NULL
+~1NF~ Tous les attributs son atomiques
+~2NF~ Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+Cette relation n'est pas en 3NF car numero->type, numero->date_restaurer, numero->montant
+~Décomposition 2NF -> 3NF~
+Restauration1(#code_oeuvre=>Oeuvre, #prestataire=>Prestataire, numero=>Restauration2)
+Restauration2(#numero:int, type:string, date_restaurer:date, montant:int)
+
+Oeuvre_acquise(#code_oeuvre=>Oeuvre, prix_acquisition:int, numero_expo=>Exposition_permanente) avec numero_expo NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Oeuvre_empruntee(#code_oeuvre=>Oeuvre, date_debut:date, date_fin:date, musee_exterieur=>Musee_exterieur, numero_expo=>Exposition_temporaire) avec date_debut, date_fin, musee_exterieur, numero_expo NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Musee_exterieur(#nom:string, adresse:string)
+~3NF~
+    -Cette relation est trivialement 3NF.
+
+Pret(#code_oeuvre=>Oeuvre_acquise, #musee_exterieur=>Musee_exterieur, date_debut:date, date_fin:date) avec date_debut et date_fin NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Exposition_permanente(#numero:int, nom:string) avec nom NON NULL
+~3NF~
+    -Cette relation est trivialement 3NF.
+
+Exposition_temporaire(#numero:int, nom:string, date_debut:date, date_fin:date) avec nom, date_debut, date_fin NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Guide(#id:int, nom:string, prenom:string, adresse:string, date_embauche:date) avec nom, prenom NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Guide_expo_tmp(#id_guide=>Guide, #numero_expo=>Exposition_temporaire)
+~3NF~
+    -Cette relation est trivialement 3NF
+
+Creneau(#numero_expo=>Exposition_permanente, #id_guide=>Guide, jour:{dim,lun,mar,mer,jeu,ven,sam}, heure_debut:int) avec heure_debut NON NULL
+~3NF~ 
+    -Tous les attributs sont atomiques (même si on a des types, ils sont complement une relation XOR parmi eux).
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+Salle_expo(#numero:int, capacite_max:int)
+~3NF~
+    -Cette relation est trivialement 3NF.
+
+Reservation_salle(#numero_expo=>Exposition_temporaire, #salle=>Salle_expo)
+~3NF~ 
+    -Cette relation est trivialement 3NF.
+
+Panneau_explicatif(#numero:int, texte:text, numero_expo=>Exposition_temporaire, salle=>Salle_expo) avec numero_expo, salle NON NULL
+~3NF~
+    -Tous les attributs sont atomiques.
+    -Les attributs non clés dépendent pleinement des clés et non de partie des clés.
+    -Il n'existe pas de dépendance fonctionnelle entre des attributs n'appartenant pas à une clé. 
+
+
+/*-------------------------------------------------------------------------------*/
+
+Complément :
+
+1. Contraintes de non nullité :
+- Elles sont déjà exprimée au-dessus 
+
+2. Contraintes temporelles :
+- Oeuvre_empruntee, Pret, Exposition_temporaire : date_debut <= date_fin
+
+3. Heritages exclusifs :
+- Oeuvre : Héritage par références 
+    INTERSECTION (PROJECTION(Oeuvre_acquise, code_oeuvre) , PROJECTION(Oeuvre_empruntee, code_oeuvre)) = {}
+- Exposition : Héritage par les classes filles
+    INTERSECTION (PROJECTION(Exposition_permanente, numero) , PROJECTION(Exposition_temporaire, numero)) = {}
+
+4. Classes mères abstraites :
+- Oeuvre : 
+    PROJECTION(Oeuvre, code) = UNION (PROJECTION(Oeuvre_acquise, code_oeuvre), PROJECTION(Oeuvre_empruntee, code_oeuvre))
+
+
+5. Contraintes liées aux cardinalités :
+- Auteur et Oeuvre (1..N : 1..N) :
+    PROJECTION(Auteur, id) = PROJECTION(Creer, auteur_id)
+    PROJECTION(Oeuvre, code) = PROJECTION(Creer, code_oeuvre)
+
+- Musee_exterieur et Oeuvre_empruntee (1..1 : 0..N) :
+    Oeuvre_empruntee.musee_exterieur NON NULL
+    PROJECTION(Oeuvre_empruntee, musee_exterieur) ⊆ PROJECTION(Musee_exterieur, nom) 
+
+- Exposition_permanente et Oeuvre_acquise (1..1 : 1..N) :
+    Oeuvre_acquise.numero_expo NON NULL
+    PROJECTION(Exposition_permanente, numero) = PROJECTION(Oeuvre_acquise, numero_expo)
+
+- Exposition_temporaire et Oeuvre_empruntee (1..1 : 1..N) :
+    Oeuvre_empruntee.numero_expo NON NULL
+    PROJECTION(Exposition_temporaire, numero) = PROJECTION(Oeuvre_empruntee, numero_expo)
+
+- Exposition_permanente et Guide (1..N : 1..N) :
+    PROJECTION(Exposition_permanente, numero) = PROJECTION(Creneau, numero_expo)
+    PROJECTION(Guide, id) = PROJECTION(Creneau, id_guide)
+
+- Guide et Exposition_temporaire (1..N : 0..N) :
+    PROJECTION(Guide_expo_tmp, numero_expo) = PROJECTION(Exposition_temporaire, numero)
+
+- Exposition_temporaire et Salle_expo (0.. N : 1..N):
+    PROJECTION(Reservation_salle, numero_expo) = PROJECTION(Exposition_temporaire, numero)
+
+- Exposition_temporaire et Panneau_explicatif (1..1 : 1..N) :
+    Panneau_explicatif.numero_expo NON NULL
+    PROJECTION(Exposition_temporaire, numero) = PROJECTION(Panneau_explicatif, numero_expo)
+
+- Panneau_explicatif et Salle_expo (0..N : 1..1) :
+    PROJECTION(Salle_expo, numero) ⊆ PROJECTION(Panneau_explicatif, salle)
+
+/*-----------------------------------------------------------------------------------------*/
+
+Vues :
+1. Liste des peintures acquises par le Louvre :
+R1 = Restriction(Oeuvre, type = 'peinture')
+R2 = Jointure(R1, Oeuvre_acquise, R1.code = R2.code_oeuvre)
+vPeinturesAcquises = Projection(R2, titre, date_creation, hauteur, largeur, prix_acquisition) 
+
+2. Liste des photographies acquises par le Louvre :
+R1 = Restriction(Oeuvre, type = 'photographies')
+R2 = Jointure(R1, Oeuvre_acquise, R1.code = R2.code_oeuvre)
+vPeinturesAcquises = Projection(R2, titre, date_creation, hauteur, largeur, prix_acquisition) 
+
+3. Liste des sculptures acquises par le Louvre :
+R1 = Restriction(Oeuvre, type = 'sculpture')
+R2 = Jointure(R1, Oeuvre_acquise, R1.code = R2.code_oeuvre)
+vPeinturesAcquises = Projection(R2, titre, date_creation, hauteur, largeur, epaisseur, prix_acquisition)   
+
+4. Liste des restaurations des oeuvres :
+R1 = Jointure(Oeuvre, Restauration1, Oeuvre.code=Restauration1.code_oeuvre)
+R2 = Jointure(R1, Restauration2, R1.numero = Restauration2.numero)
+vRestaurations = Projection(R2, titre, prestataire, date_restaurer, montant)
+
+5. Liste des oeuvres exposées dans l'exposition permanente nommée "Exposition de Peintures" :
+R1 = Restriction(Exposition_permanente, nom = 'Exposition de Peintures')
+R2 = Jointure(R1, Oeuvre_acquise, R1.numero = Oeuvre_acquise.numero_expo)
+R3 = Jointure(R2, Oeuvre, R2.code_oeuvre = Oeuvre.code)
+vOeuvresDansExpoPermanente = Projection(R3,titre)
+
+6. Liste des oeuvres exposées dans l'exposition temporaire nommée "Exposition de Photographies du Monde" :
+R1 = Restriction(Exposition_temporaire, nom='Exposition de Photographies du Monde)
+R2 = Jointure(R1, Oeuvre_empruntee, R1.numero = Oeuvre_empruntee.numero_expo)
+R3 = Jointure(R2, Oeuvre, R2.code_oeuvre = Oeuvre.code)
+vOeuvresDansExpoTemporaire = Projection(R3,titre,R3.musee_exterieur)
+
+7. Liste des oeuvres acquises par Louvre qui sont empruntées par des musées extérieurs.
+R1 = Jointure(Oeuvre, Pret, Oeuvre.code = Pret.code_oeuvre)
+vPrets = Projection(R1, titre, musee_exterieur, date_debut, date_fin)
+
+/*-----------------------------------------------------------------------------------------*/
+
+Gestion de droits des utilisateurs :
+
+il y a trois types d'utilisateurs, ce sont l'administrateur, guides(employés du Louvre), et visiteurs 
+
+1. Admin : 
+    - Avoir tous les droits sur tous les tables.
+2. Guide (Employés du Louvre) : 
+    - Avoir les droits en lecture sur leurs créneaux de travaille, 
+sur la liste des expositions qu'ils sont effectués.
+3. Visiteur (Public) :
+    - Avoir les droites en lecture sur la liste des oeuvres, des auteurs,
+des expositions actuelles.

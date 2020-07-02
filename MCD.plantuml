@@ -1,0 +1,112 @@
+@startuml MCD
+
+abstract class Oeuvre {
+    code : int {key}
+    titre : varchar
+    date_création : date 
+    hauteur : int
+    largeur : int
+    épaisseur : int 
+    type : {peinture|sculpture|photographie}
+}
+
+class Auteur {
+    id : int {key}
+    nom : varchar
+    prénom : varchar
+    date_naissance : date
+}
+
+class Prestataire {
+    raison_sociale : varchar {key}
+}
+
+Class Restauration {
+    numéro : int {unique}
+    type : varchar
+    date : date
+    montant : int
+}
+
+Auteur "1..*" - "1..*" Oeuvre : crée >
+Oeuvre "*" - "*" Prestataire
+(Oeuvre,Prestataire) . Restauration
+
+class Oeuvre_acquise {
+    prix_acquisition : int
+}
+
+class Oeuvre_empruntée {
+    date_début : date
+    date_fin : date
+}
+
+Oeuvre " " <|-- " " Oeuvre_acquise
+Oeuvre " " <|-- " " Oeuvre_empruntée
+
+note "Tous les héritages sont exclusifs" as N1
+
+class Musée_extérieur {
+    nom : varchar {key}
+    adresse : varchar
+}
+
+class Prêt {
+    date_debut : date
+    date_fin : date
+}
+
+Oeuvre_acquise "*" - "*" Musée_extérieur 
+Musée_extérieur "1" - "*" Oeuvre_empruntée : Prête >
+(Musée_extérieur, Oeuvre_acquise) .. Prêt 
+
+abstract class Exposition {
+    numéro : int {key}
+    nom : varchar 
+}
+
+class Expo_permanente {
+    prix_moyen_acquis_oeuvres()
+}
+
+class Expo_temporaire {
+    date_debut : date
+    date_fin : date
+} 
+Expo_permanente " " --|> " " Exposition
+Expo_temporaire " " --|> " "Exposition 
+Oeuvre_acquise "1..*" ---- "1" Expo_permanente : expose <
+Oeuvre_empruntée "1..*" ---- "1" Expo_temporaire : expose <
+
+class Guide {
+    id : int {key}
+    nom : varchar
+    prénom : varchar
+    adresse : varchar
+    date_embauche : date
+}
+
+class Salle_expo {
+    numéro : int {key}
+    capacité_max : int 
+}
+
+Expo_temporaire "*" - "1..*" Salle_expo : est_dédiée <
+Salle_expo "1" -- "*" Panneau_explicatif : est_situé <
+Expo_temporaire "1" -- "1..*" Panneau_explicatif : est_composée >
+class Créneau {
+    jour : {dim,lun,mar,mer,jeu,ven,sam}
+    heure_début : int
+    heure_fin()
+}
+
+class Panneau_explicatif {
+    numéro : int {key}
+    texte : text 
+}
+
+Expo_permanente "1..*" - "1..*" Guide
+Guide "1..*" - "*" Expo_temporaire : affecte <
+Créneau .. (Guide,Expo_permanente)
+
+@enduml
