@@ -205,7 +205,7 @@ INSERT INTO Pret VALUES ('7','Galerie de New York','2020-01-01','2020-03-03');
 
 -- Guides
 INSERT INTO Guide VALUES ('1','Nguyen','Uyen','6B Rue Winston Churchill','2018-03-09');
-INSERT INTO Guide VALUES ('2','Rabaud','Vincent','50 Rue de Londres','2015-04-19');
+INSERT INTO Guide VALUES ('2','Lionel','Messi','50 Rue de Londres','2015-04-19');
 INSERT INTO Guide VALUES ('3','Hugh','Jackman','123 Rue de Paris','2019-01-05');
 INSERT INTO Guide VALUES ('4','Taylor','Swift','52 Boulevard Victor Hugo','2018-04-03');
 
