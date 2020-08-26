@@ -20,8 +20,8 @@ VALUES (
 INSERT INTO Guide 
 VALUES (
     '2',
-    'Rabaud',
-    'Vincent',
+    'Lionel',
+    'Messi',
     '{"numero":"50", "voie":"Rue de Londres", "code_postal":"75008", "ville":"Paris"}',
     '2015-04-19'
 );
